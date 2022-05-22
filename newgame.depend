@@ -1,0 +1,31 @@
+# depslib dependency file v1.0
+1653195424 source:c:\users\admin\downloads\codeblocks\newgame\main.cpp
+	"type.h"
+	"color.h"
+	"draw.h"
+	"block.h"
+	"time.h"
+	"data.h"
+
+1652870382 c:\users\admin\downloads\codeblocks\newgame\color.h
+
+1653147304 c:\users\admin\downloads\codeblocks\newgame\type.h
+	<cstdlib>
+	<cstdint>
+	<cstdio>
+	<cstring>
+	<cassert>
+	<SDL.h>
+	<SDL_ttf.h>
+
+1653147132 c:\users\admin\downloads\codeblocks\newgame\draw.h
+
+1653148128 c:\users\admin\downloads\codeblocks\newgame\block.h
+	"type.h"
+
+1653148128 c:\users\admin\downloads\codeblocks\newgame\data.h
+	"type.h"
+
+1653146700 c:\users\admin\downloads\codeblocks\newgame\time.h
+	"type.h"
+

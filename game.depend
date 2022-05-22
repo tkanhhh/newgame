@@ -1,0 +1,13 @@
+# depslib dependency file v1.0
+1652799531 source:c:\users\admin\downloads\codeblocks\game\tetris.cpp
+	<cstdlib>
+	<cstdint>
+	<cstdio>
+	<cstring>
+	<cassert>
+	<SDL.h>
+	<SDL_ttf.h>
+	"colors.h"
+
+1652798259 c:\users\admin\downloads\codeblocks\game\colors.h
+
