@@ -5,24 +5,19 @@
 #include "time.h"
 #include "data.h"
 
-inline u8
-matrix_get(const u8 *values, s32 width, s32 row, s32 col)
+inline u8 matrix_get(const u8 *values, s32 width, s32 row, s32 col)
 {
     s32 index = row * width + col;
     return values[index];
 }
 
-inline void
-matrix_set(u8 *values, s32 width, s32 row, s32 col, u8 value)
+inline void matrix_set(u8 *values, s32 width, s32 row, s32 col, u8 value)
 {
     s32 index = row * width + col;
     values[index] = value;
 }
 
-//block.h
-
-inline u8
-tetrino_get(const Tetrino *tetrino, s32 row, s32 col, s32 rotation)
+inline u8 tetrino_get(const Tetrino *tetrino, s32 row, s32 col, s32 rotation)
 {
     s32 side = tetrino -> side;
     switch (rotation)
@@ -40,21 +35,7 @@ tetrino_get(const Tetrino *tetrino, s32 row, s32 col, s32 rotation)
 }; // đổi chiều khối
 
 
-inline u8
-check_row_filled(const u8 *values, s32 width, s32 row)
-{
-    for (s32 col = 0; col < width; col++)
-    {
-        if (!matrix_get(values, width, row, col))
-        {
-            return 0;
-        }
-    }
-    return 1;
-}
-
-inline u8
-check_row_empty(const u8 *values, s32 width, s32 row)
+inline u8 check_row_empty(const u8 *values, s32 width, s32 row)
 {
     for (s32 col = 0; col < width; col++)
     {
@@ -66,8 +47,20 @@ check_row_empty(const u8 *values, s32 width, s32 row)
     return 1;
 }
 
-s32
-find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out)
+inline u8 check_row_filled(const u8 *values, s32 width, s32 row)
+{
+    for (s32 col = 0; col < width; col++)
+    {
+        if (!matrix_get(values, width, row, col))
+        {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+
+s32 find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out)
 {
     s32 count = 0;
     for (s32 row = 0; row < height; row++)
@@ -80,8 +73,7 @@ find_lines(const u8 *values, s32 width, s32 height, u8 *lines_out)
 }
 // đếm số ô đầy trên hàng
 
-void
-clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
+void clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
 {
     s32 src_row = height - 1;
     for (s32 dst_row = height - 1; dst_row >= 0; dst_row--)
@@ -91,11 +83,7 @@ clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
             src_row--;
         }
 
-        if (src_row < 0)
-        {
-            memset(values + dst_row * width, 0, width);
-        }
-        else
+        if (src_row >= 0)
         {
             if (src_row != dst_row)
             {
@@ -103,12 +91,15 @@ clear_lines(u8 *values, s32 width, s32 height, const u8 *lines)
             }
             src_row--;
         }
+        else
+        {
+            memset(values + dst_row * width, 0, width);
+        }
     }
 }
 
 
-bool
-check_piece_valid(const Piece_State *piece, const u8 *board, s32 width, s32 height)
+bool check_piece_valid(const Piece_State *piece, const u8 *board, s32 width, s32 height)
 {
     const Tetrino *tetrino = BLOCKS + piece -> block_index;
     assert(tetrino);
@@ -149,8 +140,7 @@ check_piece_valid(const Piece_State *piece, const u8 *board, s32 width, s32 heig
 }
 // ktra khối gỗ có thoả mãn trong khung hay không
 
-void
-merge_piece(Game_State *game)
+void merge_piece(Game_State *game)
 {
     const Tetrino *tetrino = BLOCKS + game -> piece.block_index;
     for (s32 row = 0; row < tetrino -> side; row++)
@@ -169,17 +159,22 @@ merge_piece(Game_State *game)
 }
 // nhóm kkhối gỗ
 
-inline s32
-random_int(s32 min, s32 max)
+inline s32 min(s32 x, s32 y)
+{
+    return x < y ? x : y;
+}
+inline s32 max(s32 x, s32 y)
+{
+    return x > y ? x : y;
+}
+
+inline s32 random_int(s32 min, s32 max)
 {
     s32 range = max - min;
     return min + rand() % range;
 }
 
-//time.h
-
-void
-spawn_piece(Game_State *game)
+void spawn_piece(Game_State *game)
 {
     game -> piece = {};
     game -> piece.block_index = (u8)random_int(0, ARRAY_COUNT(BLOCKS));
@@ -188,14 +183,26 @@ spawn_piece(Game_State *game)
 };
 // tạo ngẫu nhiên khối gỗ
 
-
-inline bool
-soft_drop(Game_State *game)
+inline s32
+get_lines_for_next_level(s32 start_level, s32 level)
 {
-    ++game -> piece.offset_row;
+    s32 first_level_up_limit = min((start_level * 10 + 10), max(100, (start_level * 10 - 50)));
+    if (level == start_level)
+    {
+        return first_level_up_limit;
+    }
+    s32 diff = level - start_level;
+    return first_level_up_limit + diff * 10;
+}
+// lên level
+
+
+inline bool soft_drop(Game_State *game)
+{
+    game -> piece.offset_row++;
     if (!check_piece_valid(&game -> piece, game -> board, WIDTH, HEIGHT))
     {
-        --game -> piece.offset_row;
+        game -> piece.offset_row--;
         merge_piece(game);
         spawn_piece(game);
         return false;
@@ -204,9 +211,9 @@ soft_drop(Game_State *game)
     game -> next_drop_time = game -> time + get_time_to_next_drop(game -> level);
     return true;
 }
+//rơi xuống 1 ô
 
-inline s32
-compute_points(s32 level, s32 line_count)
+inline s32 compute_points(s32 level, s32 line_count)
 {
     switch (line_count)
     {
@@ -223,41 +230,16 @@ compute_points(s32 level, s32 line_count)
 }
 // tính điểm
 
-inline s32
-min(s32 x, s32 y)
-{
-    return x < y ? x : y;
-}
-inline s32
-max(s32 x, s32 y)
-{
-    return x > y ? x : y;
-}
-
-inline s32
-get_lines_for_next_level(s32 start_level, s32 level)
-{
-    s32 first_level_up_limit = min((start_level * 10 + 10), max(100, (start_level * 10 - 50)));
-    if (level == start_level)
-    {
-        return first_level_up_limit;
-    }
-    s32 diff = level - start_level;
-    return first_level_up_limit + diff * 10;
-}
-// lên level
-
-void
-update_game_start(Game_State *game, const Input_State *input)
+void update_game_start(Game_State *game, const Input_State *input)
 {
     if (input -> dup > 0)
     {
-        ++game -> start_level;
+        game -> start_level++;
     }
 
     if (input -> ddown > 0 && game -> start_level > 0)
     {
-        --game -> start_level;
+        game -> start_level--;
     }
 
     if (input -> da > 0)
@@ -271,8 +253,7 @@ update_game_start(Game_State *game, const Input_State *input)
     }
 }
 
-void
-update_game_gameover(Game_State *game, const Input_State *input)
+void update_game_gameover(Game_State *game, const Input_State *input)
 {
     if (input -> da > 0)
     {
@@ -280,8 +261,7 @@ update_game_gameover(Game_State *game, const Input_State *input)
     }
 }
 
-void
-update_game_line(Game_State *game)
+void update_game_line(Game_State *game)
 {
     if (game -> time >= game -> highlight_end_time)
     {
@@ -289,20 +269,17 @@ update_game_line(Game_State *game)
         game -> line_count += game -> pending_line_count;
         game -> points += compute_points(game -> level, game -> pending_line_count);
 
-        s32 lines_for_next_level = get_lines_for_next_level(game -> start_level,
-                                                            game -> level);
+        s32 lines_for_next_level = get_lines_for_next_level(game -> start_level, game -> level);
         if (game -> line_count >= lines_for_next_level)
         {
-            ++game -> level;
+            game -> level++;
         }
 
         game -> phase = GAME_PHASE_PLAY;
     }
 }
 
-void
-update_game_play(Game_State *game,
-                 const Input_State *input)
+void update_game_play(Game_State *game, const Input_State *input)
 {
     Piece_State piece = game -> piece;
     if (input -> dleft > 0)
@@ -317,17 +294,14 @@ update_game_play(Game_State *game,
     {
         piece.rotation = (piece.rotation + 1) % 4;
     }
-
     if (check_piece_valid(&piece, game -> board, WIDTH, HEIGHT))
     {
         game -> piece = piece;
     }
-
     if (input -> ddown > 0)
     {
         soft_drop(game);
     }
-
     if (input -> da > 0)
     {
         while(soft_drop(game));
@@ -352,9 +326,7 @@ update_game_play(Game_State *game,
     }
 }
 
-void
-update_game(Game_State *game,
-            const Input_State *input)
+void update_game(Game_State *game, const Input_State *input)
 {
     switch(game -> phase)
     {
@@ -373,8 +345,8 @@ update_game(Game_State *game,
     }
 }
 
-void
-fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
+
+void fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
 {
     SDL_Rect rect = {};
     rect.x = x;
@@ -385,8 +357,7 @@ fill_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color col
     SDL_RenderFillRect(renderer, &rect);
 }
 
-void
-draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
+void draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color color)
 {
     SDL_Rect rect = {};
     rect.x = x;
@@ -395,10 +366,9 @@ draw_rect(SDL_Renderer *renderer, s32 x, s32 y, s32 width, s32 height, Color col
     rect.h = height;
     SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
     SDL_RenderDrawRect(renderer, &rect);
-};
+}
 
-void
-draw_string(SDL_Renderer *renderer, TTF_Font *font, const char *text, s32 x, s32 y, Text_Align alignment, Color color)
+void draw_string(SDL_Renderer *renderer, TTF_Font *font, const char *text, s32 x, s32 y, Text_Align alignment, Color color)
 {
     SDL_Color sdl_color = SDL_Color {color.r, color.g, color.b, color.a};
     SDL_Surface *surface = TTF_RenderText_Solid(font, text, sdl_color);
@@ -424,10 +394,9 @@ draw_string(SDL_Renderer *renderer, TTF_Font *font, const char *text, s32 x, s32
     SDL_RenderCopy(renderer, texture, 0, &rect);
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(texture);
-};
+}
 
-void
-draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y, bool outline = false)
+void draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 offset_y, bool outline = false)
 {
     Color base_color = BASE_COLORS[value];
     Color light_color = LIGHT_COLORS[value];
@@ -447,10 +416,9 @@ draw_cell(SDL_Renderer *renderer, s32 row, s32 col, u8 value, s32 offset_x, s32 
     fill_rect(renderer, x, y, GRID_SIZE, GRID_SIZE, dark_color);
     fill_rect(renderer, x + edge, y, GRID_SIZE - edge, GRID_SIZE - edge, light_color);
     fill_rect(renderer, x + edge, y + edge, GRID_SIZE - edge * 2, GRID_SIZE - edge * 2, base_color);
-};
+}
 
-void
-draw_piece(SDL_Renderer *renderer, const Piece_State *piece, s32 offset_x, s32 offset_y, bool outline = false)
+void draw_piece(SDL_Renderer *renderer, const Piece_State *piece, s32 offset_x, s32 offset_y, bool outline = false)
 {
     const Tetrino *tetrino = BLOCKS + piece -> block_index;
     for (s32 row = 0; row < tetrino -> side; row++)
@@ -464,10 +432,9 @@ draw_piece(SDL_Renderer *renderer, const Piece_State *piece, s32 offset_x, s32 o
             }
         }
     }
-};
+}
 
-void
-draw_board(SDL_Renderer *renderer, const u8 *board, s32 width, s32 height, s32 offset_x, s32 offset_y)
+void draw_board(SDL_Renderer *renderer, const u8 *board, s32 width, s32 height, s32 offset_x, s32 offset_y)
 {
     fill_rect(renderer, offset_x, offset_y, width * GRID_SIZE, height * GRID_SIZE, BASE_COLORS[0]);
     for (s32 row = 0; row < height; row++)
@@ -481,10 +448,10 @@ draw_board(SDL_Renderer *renderer, const u8 *board, s32 width, s32 height, s32 o
             }
         }
     }
-};
+}
 
-void
-render_game(const Game_State *game, SDL_Renderer *renderer, TTF_Font *font)
+
+void render_game(const Game_State *game, SDL_Renderer *renderer, TTF_Font *font)
 {
 
     char buffer[4096];
@@ -496,12 +463,12 @@ render_game(const Game_State *game, SDL_Renderer *renderer, TTF_Font *font)
     draw_board(renderer, game -> board, WIDTH, HEIGHT, 0, margin_y);
     draw_string(renderer, font, "TETRIS GAME", 80, 20, TEXT_ALIGN_LEFT, highlight_color);
 
-    draw_string(renderer, font, "USES:", 400, 400, TEXT_ALIGN_CENTER, highlight_color);
-    draw_string(renderer, font, "SPACE: BOTTOM", 300, 440, TEXT_ALIGN_LEFT, highlight_color);
-    draw_string(renderer, font, "RIGHT", 400, 480, TEXT_ALIGN_LEFT, highlight_color);
-    draw_string(renderer, font, "LEFT", 400, 520, TEXT_ALIGN_LEFT, highlight_color);
-    draw_string(renderer, font, "DOWN", 400, 560, TEXT_ALIGN_LEFT, highlight_color);
-    draw_string(renderer, font, "ROTATION", 400, 600, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, "INSTRUCTIONS:", 500, 350, TEXT_ALIGN_CENTER, highlight_color);
+    draw_string(renderer, font, "SPACE: QUICK DROP", 400, 400, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, ">    : RIGHT", 400, 440, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, "<    : LEFT", 400, 480, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, "\\/   : DOWN", 400, 520, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, "/\\   : ROTATION", 400, 560, TEXT_ALIGN_LEFT, highlight_color);
 
     if (game -> phase == GAME_PHASE_PLAY)
     {
@@ -519,13 +486,13 @@ render_game(const Game_State *game, SDL_Renderer *renderer, TTF_Font *font)
     }
 
     snprintf(buffer, sizeof(buffer), "LEVEL: %d", game -> level);
-    draw_string(renderer, font, buffer, 300, 100, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, buffer, 350, 100, TEXT_ALIGN_LEFT, highlight_color);
 
     snprintf(buffer, sizeof(buffer), "LINES: %d", game -> line_count);
-    draw_string(renderer, font, buffer, 300, 140, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, buffer, 350, 140, TEXT_ALIGN_LEFT, highlight_color);
 
     snprintf(buffer, sizeof(buffer), "POINTS: %d", game -> points);
-    draw_string(renderer, font, buffer, 300, 180, TEXT_ALIGN_LEFT, highlight_color);
+    draw_string(renderer, font, buffer, 350, 180, TEXT_ALIGN_LEFT, highlight_color);
 
     if (game -> phase == GAME_PHASE_LINE)
     {
@@ -542,16 +509,16 @@ render_game(const Game_State *game, SDL_Renderer *renderer, TTF_Font *font)
     }
     else if (game -> phase == GAME_PHASE_GAMEOVER)
     {
-        s32 x = WIDTH * GRID_SIZE / 2;
-        s32 y = (HEIGHT * GRID_SIZE + margin_y) / 2;
-        SDL_RenderClear(renderer);
+                SDL_RenderClear(renderer);
 
-        draw_string(renderer, font, "GAME OVER", x, y - 40, TEXT_ALIGN_CENTER, highlight_color);
+        draw_string(renderer, font, "GAME OVER", 360, 280, TEXT_ALIGN_CENTER, highlight_color);
         snprintf(buffer, sizeof(buffer), "LINES: %d", game -> line_count);
-        draw_string(renderer, font, buffer, x, y, TEXT_ALIGN_CENTER, highlight_color);
+        draw_string(renderer, font, buffer, 360, 320, TEXT_ALIGN_CENTER, highlight_color);
 
         snprintf(buffer, sizeof(buffer), "POINTS: %d", game -> points);
-        draw_string(renderer, font, buffer, x, y + 40, TEXT_ALIGN_CENTER, highlight_color);
+        draw_string(renderer, font, buffer, 360, 360, TEXT_ALIGN_CENTER, highlight_color);
+        draw_string(renderer, font, "PRESS SPACE TO REPLAY", 360, 440, TEXT_ALIGN_CENTER, highlight_color);
+        draw_string(renderer, font, "PRESS ESC TO QUIT", 360, 480, TEXT_ALIGN_CENTER, highlight_color);
     }
     else if (game -> phase == GAME_PHASE_START)
     {
@@ -563,24 +530,23 @@ render_game(const Game_State *game, SDL_Renderer *renderer, TTF_Font *font)
 
         draw_string(renderer, font, "PRESS SPACE TO PLAY", x, y + 40, TEXT_ALIGN_CENTER, highlight_color);
     }
-
-
 }
 
-int
-main(int argv, char* args[])
+
+int main(int argv, char* args[])
 {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
         return 1;
     }
-
     if (TTF_Init() < 0)
     {
         return 2;
     }
 
-    SDL_Window *window = SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 500, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+    Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048);
+
+    SDL_Window *window = SDL_CreateWindow("TETRIS", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 720, 720, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
     SDL_Renderer *renderer = SDL_CreateRenderer( window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
     const char *font_name = "novem___.ttf";
@@ -593,11 +559,14 @@ main(int argv, char* args[])
 
     game.piece.block_index = 2;
 
+    Mix_Music* bgMusic = Mix_LoadMUS("track.mp3");
+
+    Mix_PlayMusic(bgMusic, -1);
+
     bool quit = false;
     while (!quit)
     {
         game.time = SDL_GetTicks() / 1000.0f;
-
         SDL_Event e;
         while (SDL_PollEvent(&e) != 0)
         {
@@ -614,6 +583,8 @@ main(int argv, char* args[])
         {
             quit = true;
         }
+
+        //lấy input từ người dùng
 
         Input_State prev_input = input;
 
@@ -644,5 +615,3 @@ main(int argv, char* args[])
 
     return 0;
 }
-
-
