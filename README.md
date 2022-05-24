@@ -8,24 +8,18 @@
   + Sau đó, tải bài repository về máy-> giải nén -> vào thư mục Release -> chạy Project.exe hoặc WizardAdventure.exe để chạy game
 
 2. Mô tả chung về trò chơi, các ý tưởng chính
-- Mô tả:  Trò chơi di chuyển các khối gạch đang rơi tự do từ trên xuống bên trong khung hình chứ nhật cho trước. 
-          Chỗ nào có gạch rồi thì không di chuyển được tới vị trí đó. 
-          Người chơi xếp những khối hình sao cho khối hình lấp đầy 1 hàng ngang để ghi điểm và hàng ngang ấy sẽ biến mất.
-- Ý tưởng chính:
+- Trò chơi di chuyển các khối gạch đang rơi tự do từ trên xuống bên trong khung hình chứ nhật cho trước. 
+- Chỗ nào có gạch rồi thì không di chuyển được tới vị trí đó. 
+- Người chơi xếp những khối hình sao cho khối hình lấp đầy 1 hàng ngang để ghi điểm và hàng ngang ấy sẽ biến mất. 
 
-3. Mô tả các chức năng đã cài đặt, kèm video minh họa (chèn link video youtube)
-- Chức năng thay đổi level:
-- Chức năng di chuyển:
-- Chức năng xoay chiều khối gố:
-- Link youtube
-
-4. Các kỹ thuật lập trình được sử dụng trong chương trình (mảng, con trỏ, cấu trúc, lớp, đồ họa ...)
-- Mảng:
-- Con trỏ:
-- Cấu trúc:
-- Đồ hoạ:
+3. Mô tả các chức năng, kỹ thuật đã cài đặt, kèm video minh họa (chèn link video youtube)
+- Chức năng thay đổi level: sử dụng mũi tên lên xuống để thay đổi level (tốc độ rơi của khối gỗ) trước khi bắt đầu chơi.
+- Chức năng di chuyển: Sử dụng mũi tên trái, phải, xuống để di chuyển khối gỗ.
+- Chức năng xoay chiều khối gố: sử dụng mũi tên lên để xoay khối gỗ.
+- Link youtube: <<chưa coá>>
+- 
 
 5. Kết luận, hướng phát triển và các điều tâm đắc rút ra được sau khi hoàn thiện chương trình
-- Kết luận: 
-- Hướng phát triển: 
-- Rút ra:
+- Kết luận: Trò chơi mang tính giải trí và rèn luyện tư duy.
+- Hướng phát triển: Tăng độ khó cho trò chơi bằng các khối gỗ ẩn, bổ sung phần preview khối gỗ trên màn hình.
+- Rút ra: :>> stress cao
