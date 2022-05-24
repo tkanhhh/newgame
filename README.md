@@ -17,9 +17,8 @@
 - Chức năng di chuyển: Sử dụng mũi tên trái, phải, xuống để di chuyển khối gỗ.
 - Chức năng xoay chiều khối gố: sử dụng mũi tên lên để xoay khối gỗ.
 - Link youtube: <<chưa coá>>
-- 
+- Kỹ thuật đã sử dụng: cấu trúc, định nghĩa, mảng, đồ hoạ,...
 
 5. Kết luận, hướng phát triển và các điều tâm đắc rút ra được sau khi hoàn thiện chương trình
-- Kết luận: Trò chơi mang tính giải trí và rèn luyện tư duy.
+- Kết luận: Lập trình trò chơi đã giúp em tăng khả năng hiểu biết và sử dụng ngôn ngữ C++; nâng cao năng lực xử lý nhiều file, nhiều chương trình con
 - Hướng phát triển: Tăng độ khó cho trò chơi bằng các khối gỗ ẩn, bổ sung phần preview khối gỗ trên màn hình.
-- Rút ra: :>> stress cao
