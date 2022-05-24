@@ -16,6 +16,9 @@
 - Chức năng thay đổi level: sử dụng mũi tên lên xuống để thay đổi level (tốc độ rơi của khối gỗ) trước khi bắt đầu chơi.
 - Chức năng di chuyển: Sử dụng mũi tên trái, phải, xuống để di chuyển khối gỗ.
 - Chức năng xoay chiều khối gố: sử dụng mũi tên lên để xoay khối gỗ.
+- Cách tính điểm, tăng level:
+  + Tăng level: tăng level theo cấp số cộng 10 dòng được xoá. (lv0: 0-9 dòng; lv1: 10-19 dòng;...)
+  + Tính điểm: Tính điểm theo level và theo số dòng được xoá cùng lúc. (Tối đa 4 dòng xoá được cùng lúc)
 - Link youtube: <<chưa coá>>
 - Kỹ thuật đã sử dụng: cấu trúc, định nghĩa, mảng, đồ hoạ,...
 
